@@ -5,8 +5,8 @@ def main
   parsed =
     begin
       parse(YAML.parse(ARGF).children.first) || {}
-    rescue => e
-      STDERR.puts e.message
+    rescue StandardError => e
+      warn e.message
       {}
     end
 
@@ -25,7 +25,7 @@ def parse(node, current_path = nil)
         {}
       end
 
-    node.children.each_slice(2).reduce(initial) { |hash, (ykey, yvalue)|
+    node.children.each_slice(2).reduce(initial) do |hash, (ykey, yvalue)|
       key =
         case ykey
         when Psych::Nodes::Scalar
@@ -44,7 +44,7 @@ def parse(node, current_path = nil)
       else
         hash
       end
-    }
+    end
   when Psych::Nodes::Sequence
     initial =
       if current_path
@@ -53,13 +53,13 @@ def parse(node, current_path = nil)
         {}
       end
 
-    node.children.each_with_index.reduce(initial) { |hash, (yvalue, i)|
+    node.children.each_with_index.reduce(initial) do |hash, (yvalue, i)|
       if value = parse(yvalue, "#{current_path}[#{i}]")
         hash.merge(value)
       else
         hash
       end
-    }
+    end
   end
 end
 

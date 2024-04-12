@@ -60,7 +60,7 @@
 
 ;;; Code:
 (eval-when-compile (require 'cl-lib))
-(require 'yaml-mode)
+(require 'yaml-mode nil t)
 (require 'json)
 
 (defvar yaml-imenu-parser
@@ -116,13 +116,12 @@
 (define-minor-mode yaml-imenu-mode
   "Enable `yaml-imenu' support."
   :lighter nil
-  (if yaml-imenu-mode
-      (progn
-        (setq imenu--index-alist nil)
-        (add-function :before-until (local 'imenu-create-index-function)
-                      #'yaml-imenu-create-index))
-    (remove-function (local 'imenu-create-index-function)
-                     #'yaml-imenu-create-index)))
+  (if (not yaml-imenu-mode)
+      (remove-function
+       (local 'imenu-create-index-function) #'yaml-imenu-create-index)
+    (setq imenu--index-alist nil)
+    (add-function :before-until (local 'imenu-create-index-function)
+                  #'yaml-imenu-create-index)))
 
 (provide 'yaml-imenu)
 ;;; yaml-imenu.el ends here
